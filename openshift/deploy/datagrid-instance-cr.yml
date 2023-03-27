@@ -1,0 +1,30 @@
+apiVersion: infinispan.org/v1
+kind: Infinispan
+metadata:
+  name: example-infinispan
+  labels:
+    com.redhat.component-name: Data_Grid
+    com.redhat.component-type: application
+    com.redhat.component-version: 8.4.1
+    com.redhat.product-name: Red_Hat_Runtimes
+    com.redhat.product-version: 2023-Q1
+spec:
+  configListener:
+    enabled: true
+  container:
+    cpu: '1:1'
+    memory: '1Gi:0.5Gi'
+  replicas: 1
+  security:
+    authorization: {}
+    endpointAuthentication: true
+    endpointEncryption:
+      clientCert: None
+      type: None
+  service:
+    container:
+      ephemeralStorage: true
+      storage: 1Gi
+    type: DataGrid
+  upgrades:
+    type: Shutdown

@@ -1,0 +1,123 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  annotations:
+    app.openshift.io/vcs-uri: 'https://github.com/ippul/hotrod-client-eap'
+    deployment.kubernetes.io/revision: '8'
+    image.openshift.io/triggers: |-
+      [
+        {
+          "from":{
+            "kind":"ImageStreamTag",
+            "name":"eap74:latest"
+          },
+          "fieldPath":"spec.template.spec.containers[0].image"
+        }
+      ]
+    release-name: eap74
+  name: eap74
+  labels:
+    rht.comp_ver: '7.4'
+    rht.prod_name: Red_Hat_Runtimes
+    app.kubernetes.io/instance: eap74
+    app.kubernetes.io/version: '7.4'
+    rht.prod_ver: 2023-Q1
+    com.company: Red_Hat
+    app.openshift.io/runtime: eap
+    rht.subcomp_t: application
+    app.kubernetes.io/name: eap74
+    rht.comp: EAP
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: eap74
+      app.kubernetes.io/name: eap74
+  template:
+    metadata:
+      name: eap74
+      creationTimestamp: null
+      labels:
+        rht.comp_ver: '7.4'
+        rht.prod_name: Red_Hat_Runtimes
+        app.kubernetes.io/instance: eap74
+        app.kubernetes.io/version: '7.4'
+        rht.prod_ver: 2023-Q1
+        com.company: Red_Hat
+        app.openshift.io/runtime: eap
+        app.kubernetes.io/managed-by: Helm
+        rht.subcomp_t: application
+        app.kubernetes.io/name: eap74
+        rht.comp: EAP
+    spec:
+      containers:
+        - resources: {}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - '-c'
+                - /opt/eap/bin/readinessProbe.sh
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: eap74
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - '-c'
+                - /opt/eap/bin/livenessProbe.sh
+            initialDelaySeconds: 60
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: JGROUPS_PING_PROTOCOL
+              value: dns.DNS_PING
+            - name: OPENSHIFT_DNS_PING_SERVICE_PORT
+              value: '8888'
+            - name: AUTO_DEPLOY_EXPLODED
+              value: 'false'
+            - name: ENABLE_GENERATE_DEFAULT_DATASOURCE
+              value: 'false'
+            - name: OPENSHIFT_DNS_PING_SERVICE_NAME
+              value: eap74-ping
+            - name: ENV_FILES
+              value: /etc/extensions/*
+            - name: HOTROD_USER
+              value: developer
+            - name: HOTROD_PASSWORD
+              value: QNgJhnnREogdolfm
+            - name: HOTROD_URL
+              value: example-infinispan.hotrod-examples.svc.cluster.local
+          ports:
+            - name: jolokia
+              containerPort: 8778
+              protocol: TCP
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: ping
+              containerPort: 8888
+              protocol: TCP
+            - name: admin
+              containerPort: 9990
+              protocol: TCP
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/hotrod-examples/eap74:latest
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: Recreate
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
