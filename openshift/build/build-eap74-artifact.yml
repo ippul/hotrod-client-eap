@@ -1,0 +1,72 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  annotations:
+    release-name: eap74
+  name: eap74-build-artifacts
+  labels:
+    rht.comp_ver: '7.4'
+    rht.prod_name: Red_Hat_Runtimes
+    app.kubernetes.io/instance: eap74
+    app.kubernetes.io/version: '7.4'
+    rht.prod_ver: 2023-Q1
+    com.company: Red_Hat
+    app.openshift.io/runtime: eap
+    rht.subcomp_t: application
+    app.kubernetes.io/name: eap74
+    rht.comp: EAP
+spec:
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'eap74-build-artifacts:latest'
+  resources: {}
+  successfulBuildsHistoryLimit: 5
+  failedBuildsHistoryLimit: 5
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: DockerImage
+        name: 'registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:latest'
+      env:
+        - name: GALLEON_PROVISION_DEFAULT_FAT_SERVER
+          value: 'true'
+        - name: CUSTOM_INSTALL_DIRECTORIES
+          value: extensions/*
+        - name: ARTIFACT_DIR
+          value: ./ear/target/
+      incremental: true
+      forcePull: true
+  postCommit: {}
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/ippul/hotrod-client-eap'
+  triggers:
+    - type: ConfigChange
+  runPolicy: Serial
+---
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  annotations:
+    release-name: eap74
+  name: eap74-build-artifacts
+  labels:
+    rht.comp_ver: '7.4'
+    rht.prod_name: Red_Hat_Runtimes
+    app.kubernetes.io/instance: eap74
+    app.kubernetes.io/version: '7.4'
+    rht.prod_ver: 2023-Q1
+    com.company: Red_Hat
+    app.openshift.io/runtime: eap
+    helm.sh/chart: eap74-1.1.1
+    rht.subcomp_t: application
+    app.kubernetes.io/name: eap74
+    rht.comp: EAP
+spec:
+  lookupPolicy:
+    local: false
+
