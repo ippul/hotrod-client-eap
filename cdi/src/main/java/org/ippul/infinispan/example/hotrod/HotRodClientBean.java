@@ -20,11 +20,11 @@ public class HotRodClientBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HotRodClientBean.class.getName());
 
-    public static final String USER = "admin";
+    public static final String USER = System.getenv("HOTROD_USER") == null ? "admin" : System.getenv("HOTROD_USER");
+
+    public static final String PASSWORD = System.getenv("HOTROD_PASSWORD") == null ? "password" : System.getenv("HOTROD_PASSWORD");
     
-    public static final String PASSWORD = "password";
-    
-    public static final String HOST = "127.0.0.1";
+    public static final String HOST = System.getenv("HOTROD_URL") == null ? "127.0.0.1" : System.getenv("HOTROD_URL");
 
     private RemoteCacheManager remoteCacheManager;
 
@@ -43,7 +43,7 @@ public class HotRodClientBean {
         final ConfigurationBuilder builder = new ConfigurationBuilder();
         // create client
         builder.addServer()
-                    .host("127.0.0.1")
+                    .host(HOST)
                     .port(ConfigurationProperties.DEFAULT_HOTROD_PORT)
                 .security()
                     .authentication()
